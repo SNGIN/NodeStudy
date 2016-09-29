@@ -1,0 +1,54 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>chat</title>
+<script src="/socket.io/socket.io.js"></script>
+<div>
+ニックネーム：<input type="text" id="nickname" value="">
+<br><br>
+メッセージ：<input type="text" id="chat_mes" value="" onKeyPress="enter();">
+</div>
+
+<div id="messages"></div>
+
+
+<script>
+//ソケットの作成
+var socket = io();
+
+//エンターを押した時の処理
+function enter(){
+    if(window.event.keyCode == 13 ){
+        //ニックネームの取得
+        var nickname = document.getElementById("nickname").value;
+        if(nickname == ""){
+            nickname = "unknown";
+        }
+        //配列で送る
+        var chat_message = [];
+        chat_message[0] = nickname;
+        chat_message[1] = document.getElementById("chat_mes").value;
+        //相手に送信
+        socket.emit('msg', chat_message);
+        //HTML側のidついた値をからにする
+        document.getElementById("chat_mes").value = "";
+    }
+}
+
+//送信イベントを受けた時
+socket.on('msg', function(data) {
+　  
+    var messages = document.getElementById("messages").innerHTML;
+    //配列で受ける
+    document.getElementById("messages").innerHTML = data[0] + "->" + data[1] + '<br>' + messages;
+  
+});
+
+socket.on('logout', function(data) {
+    
+    var messages = document.getElementById("messages").innerHTML;
+    document.getElementById("messages").innerHTML = data + '<br>' + messages;
+  
+});
+
+
+</script>
